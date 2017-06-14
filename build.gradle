@@ -1,0 +1,42 @@
+group 'com.robo4j'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'maven'
+
+apply from: 'libraries.gradle'
+
+version "${robo4jVersion}"
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+//create a single Jar with all dependencies
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'robo4j-rpi-dof10imu-client',
+                'Implementation-Version': version,
+                'Main-Class': 'com.robo4j.dof10imu.Dof10ImuClientMain'
+    }
+    //baseName = project.name + '-all'
+    baseName = 'robo4j-rpi-dof10imu-client'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "${gradleVersion}"
+}
+
+dependencies {
+    compile "com.robo4j:robo4j-db-sql:${robo4jVersion}"
+    compile "com.robo4j:robo4j-hw-rpi:${robo4jVersion}"
+    compile "com.robo4j:robo4j-units-rpi:${robo4jVersion}"
+    testCompile "junit:junit:${junitVersion}@jar"
+    testCompile "org.hamcrest:hamcrest-all:${hamcrestAllVersion}@jar"
+    testCompile "org.mockito:mockito-all:${mockitoAllVersion}@jar"
+}

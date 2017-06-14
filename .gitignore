@@ -1,0 +1,5 @@
+/bin/
+*.bak
+/.gradle/
+/build/
+.settings
