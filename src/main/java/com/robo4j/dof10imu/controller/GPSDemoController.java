@@ -27,13 +27,16 @@ import com.robo4j.hw.rpi.serial.gps.GPSEvent;
 import com.robo4j.units.rpi.gps.GPSRequest;
 
 /**
+ * Controller for GPS Unit
+ * functionality: turn on/off
+ *
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
 public class GPSDemoController extends RoboUnit<Boolean> {
 
-    private String gpsUnitName;
-    private String gpsProcessorName;
+    private String unitName;
+    private String processorName;
 
     public GPSDemoController(RoboContext context, String id) {
         super(Boolean.class, context, id);
@@ -41,19 +44,25 @@ public class GPSDemoController extends RoboUnit<Boolean> {
 
     @Override
     protected void onInitialization(Configuration configuration) throws ConfigurationException {
-        gpsUnitName = configuration.getString("gpsUnitName", null);
-        gpsProcessorName = configuration.getString("gpsProcessorName", null);
+        unitName = configuration.getString(Utils.PROPERTY_UNIT_NAME, null);
+        if(unitName == null){
+            throw new ConfigurationException(Utils.PROPERTY_UNIT_NAME);
+        }
+        processorName = configuration.getString(Utils.PROPERTY_PROCESSOR_NAME, null);
+        if(processorName == null){
+            throw new ConfigurationException(Utils.PROPERTY_PROCESSOR_NAME);
+        }
     }
 
     @Override
     public void onMessage(Boolean message) {
-        RoboReference<GPSEvent> processor = getContext().getReference(gpsProcessorName);
+        RoboReference<GPSEvent> processor = getContext().getReference(processorName);
         if(message){
-            System.out.println("START to gps unit: " + gpsUnitName);
-            getContext().getReference(gpsUnitName).sendMessage(new GPSRequest(processor, GPSRequest.Operation.REGISTER));
+            System.out.println("START to gps unit: " + unitName);
+            getContext().getReference(unitName).sendMessage(new GPSRequest(processor, GPSRequest.Operation.REGISTER));
         } else {
-            System.out.println("ENDING requesting GPS events: " + gpsUnitName);
-            getContext().getReference(gpsUnitName).sendMessage(new GPSRequest(processor, GPSRequest.Operation.UNREGISTER));
+            System.out.println("ENDING requesting GPS events: " + unitName);
+            getContext().getReference(unitName).sendMessage(new GPSRequest(processor, GPSRequest.Operation.UNREGISTER));
 
         }
     }

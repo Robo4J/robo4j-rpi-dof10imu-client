@@ -15,20 +15,21 @@
  * along with Robo4J. If not, see <http://www.gnu.org/licenses/>.
  */
 
-println "configure $project"
+package com.robo4j.dof10imu.controller;
 
-ext {
-    robo4jVersion = "alpha-0.3"
-    gradleVersion = "3.5"
-    pi4jVersion = "1.1"
-    junitVersion = "4.12"
-    hamcrestAllVersion = "1.3"
-    mockitoAllVersion = "1.10.19"
-    hibernateVersion = "5.2.10.Final"
-    hibernateJpaVersion = "1.0.0.Final"
-    flywayVersion = "4.2.0"
-    h2Version = "1.4.195"
-    postgresqlVersion = "9.4-1200-jdbc41"
-    persistanceVersion = "1.0.2"
-    gsonVersion = "2.8.1"
+/**
+ * Constant helper clas
+ *
+ * @author Marcus Hirt (@hirt)
+ * @author Miro Wengner (@miragemiko)
+ */
+public class Utils {
+
+    public static final String VALID_STORE_POINT = "validStoragePoint";
+    public static final String GYRO_UNIT = "gyro";
+    public static final String GPS_UNIT = "gps";
+    public static final String ACC_UNIT = "accelerometer";
+    public static final String ACCELEROMETER_UNIT = "accelerometer";
+    public static final String PROPERTY_UNIT_NAME = "unitName";
+    public static final String PROPERTY_PROCESSOR_NAME = "processorName";
 }

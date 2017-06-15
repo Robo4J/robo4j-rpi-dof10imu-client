@@ -17,10 +17,12 @@
 
 package com.robo4j.dof10imu.controller;
 
+import com.google.gson.Gson;
 import com.robo4j.core.ConfigurationException;
 import com.robo4j.core.RoboContext;
 import com.robo4j.core.RoboUnit;
 import com.robo4j.core.configuration.Configuration;
+import com.robo4j.core.logging.SimpleLoggingUtil;
 import com.robo4j.db.sql.dto.ERoboPointDTO;
 import com.robo4j.db.sql.util.DBSQLConstants;
 import com.robo4j.hw.rpi.serial.gps.GPSEvent;
@@ -34,34 +36,42 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
-public class DOF10UnitProvider extends RoboUnit<GPSEvent> {
+public class GpsUnitProvider extends RoboUnit<GPSEvent> {
 
     private static final int INIT_VALUE = 0;
-    private static final String ROBO_POINT_TYPE = "gps";
-    private static final int MAX_DELAY_POINTS = 10;
-    private String persistenceUnitName;
-    private final  GpsResultVisitor visitor = new GpsResultVisitor();
     private volatile AtomicInteger counter = new AtomicInteger(0);
+    private final  GpsResultVisitor visitor = new GpsResultVisitor();
+    private String persistenceUnitName;
+    private Integer validPointNumber;
 
-    public DOF10UnitProvider(RoboContext context, String id) {
+    public GpsUnitProvider(RoboContext context, String id) {
         super(GPSEvent.class, context, id);
     }
 
     @Override
     protected void onInitialization(Configuration configuration) throws ConfigurationException {
         persistenceUnitName = configuration.getString(DBSQLConstants.KEY_PERSISTENCE_UNIT, null);
+        if(persistenceUnitName == null){
+            SimpleLoggingUtil.debug(getClass(), "no available" + DBSQLConstants.KEY_PERSISTENCE_UNIT);
+        }
+        validPointNumber = configuration.getInteger(Utils.VALID_STORE_POINT, null);
+        if(validPointNumber == null){
+            throw new ConfigurationException(Utils.VALID_STORE_POINT);
+        }
     }
 
     @Override
-    public void onMessage(GPSEvent result) {
-        if(persistenceUnitName != null && MAX_DELAY_POINTS == counter.getAndIncrement()){
-            getContext().getReference(persistenceUnitName).sendMessage(result.visit(visitor));
+    public void onMessage(GPSEvent message) {
+        int value = counter.getAndIncrement();
+        if(persistenceUnitName != null && validPointNumber == value){
+            System.out.println(getClass().getSimpleName() + " STORE: " + message);
+            getContext().getReference(persistenceUnitName).sendMessage(message.visit(visitor));
             counter.set(INIT_VALUE);
         }
     }
 
     //Private Method
-    //FIXME
+    // FIXME: 15.06.17 miro: different handling of incoming object -> JSON
     private class GpsResultVisitor implements GPSVisitor<ERoboPointDTO> {
         @Override
         public ERoboPointDTO visit(VelocityEvent event) {
@@ -72,7 +82,7 @@ public class DOF10UnitProvider extends RoboUnit<GPSEvent> {
                     .append(",")
                     .append(event.getTrueTrackMadeGood())
                     .append("}");
-            return new ERoboPointDTO(ROBO_POINT_TYPE, sb.toString());
+            return new ERoboPointDTO(Utils.GPS_UNIT, sb.toString());
         }
 
         @Override
@@ -90,7 +100,7 @@ public class DOF10UnitProvider extends RoboUnit<GPSEvent> {
                     .append(":")
                     .append(event.getLocation().getLongitude())
                     .append("}");
-            return new ERoboPointDTO(ROBO_POINT_TYPE, sb.toString());
+            return new ERoboPointDTO(Utils.GPS_UNIT, sb.toString());
         }
     }
 
