@@ -77,7 +77,7 @@ public class Dof10ImuClientMain {
 		GpsUnitProvider gpsUnitProvider = new GpsUnitProvider(system, GPS_DOF10_PROVIDER);
 		Configuration config = ConfigurationFactory.createEmptyConfiguration();
 		config.setString(DBSQLConstants.KEY_PERSISTENCE_UNIT, TARGET_STORAGE_UNIT);
-		config.setInteger(Utils.VALID_STORE_POINT, 13);
+		config.setInteger(Utils.VALID_STORE_POINT, 4);
 		gpsUnitProvider.initialize(config);
 
 		GPSDemoController gpsDemoController = new GPSDemoController(system, GPS_CONTROLLER);
@@ -94,7 +94,7 @@ public class Dof10ImuClientMain {
 		GyroUnitProvider gyroUnitProvider = new GyroUnitProvider(system, GYRO_DOF10_PROVIDER);
 		config = ConfigurationFactory.createEmptyConfiguration();
 		config.setString(DBSQLConstants.KEY_PERSISTENCE_UNIT, TARGET_STORAGE_UNIT);
-		config.setInteger(Utils.VALID_STORE_POINT, 3);
+		config.setInteger(Utils.VALID_STORE_POINT, 10);
 		gyroUnitProvider.initialize(config);
 
 		GyroDemoController gyroDemoController = new GyroDemoController(system, GYRO_CONTROLLER);
